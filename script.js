@@ -11,6 +11,22 @@ function progress(value) {
     });
 }
 
+function uploadProgress(evt) {
+    if (evt.lengthComputable) {
+        progress(evt.loaded / evt.total * 50);
+    } else {
+        progress(50);
+    }
+}
+
+function downloadProgress(evt) {
+    if (evt.lengthComputable) {
+        progress(50 + evt.loaded / evt.total * 50);
+    } else {
+        progress(100);
+    }
+}
+
 $("#sample-form").submit(function (event) {
     event.preventDefault();
 
@@ -20,23 +36,8 @@ $("#sample-form").submit(function (event) {
 		data: $(this).serialize(),
 		xhr: function () {
 			var xhr = new window.XMLHttpRequest();
-
-			// Upload Progress
-			xhr.upload.addEventListener("progress", function (evt) {
-				if (evt.lengthComputable) {
-					var percentComplete = evt.loaded / evt.total;
-					progress(percentComplete * 50);
-				}
-			}, false);
-
-			// Download Progress
-			xhr.addEventListener("progress", function (evt) {
-				if (evt.lengthComputable) {
-					var percentComplete = evt.loaded / evt.total;
-					progress(50 + percentComplete * 50);
-				}
-			}, false);
-
+			xhr.upload.addEventListener("progress", uploadProgress, false);
+			xhr.addEventListener("progress", downloadProgress, false);
 			return xhr;
 		}
 	});
